@@ -46,13 +46,6 @@ class InstallCommand extends Command
      */
     private ?string $prefix;
 
-    /*
-     * Whether dark mode should be enabled.
-     *
-     * @var bool|null
-     */
-    private ?bool $darkMode;
-
     /**
      * Execute the console command.
      */
@@ -62,18 +55,9 @@ class InstallCommand extends Command
         $this->clientId = $this->ask('What is your Discord application\'s client id?');
         $this->clientSecret = $this->ask('What is your Discord application\'s client secret?');
         $this->prefix = $this->ask('What route prefix should Larascord use?', 'larascord');
-        $this->darkMode = $this->confirm('Do you want to install laravel/breeze with dark mode?', true);
-
+        
         // Validating the user's input
         try {$this->validateInput();} catch (\Exception $e) {$this->error($e->getMessage()); return;}
-
-        // Installing laravel/breeze
-        $this->info('Installing Laravel Breeze...');
-        if ($this->darkMode) {
-            shell_exec('php artisan breeze:install blade --dark');
-        } else {
-            shell_exec('php artisan breeze:install blade');
-        }
 
         // Appending the secrets to the .env file
         $this->info('Appending the secrets to the .env file...');
@@ -87,17 +71,9 @@ class InstallCommand extends Command
         $this->info('Creating the user model files...');
         $this->createModelFiles();
 
-        // Create the view files
-        $this->info('Creating the view files...');
-        $this->createViewFiles();
-
         // Create the event files
         $this->info('Creating the event files...');
         $this->createEventFiles();
-
-        // Remove Laravel Breeze routes
-        $this->info('Replacing the Laravel Breeze routes...');
-        $this->replaceBreezeRoutes();
 
         // Asking the user to build the assets
         if ($this->confirm('Do you want to build the assets?', true)) {
@@ -202,48 +178,11 @@ class InstallCommand extends Command
     }
 
     /**
-     * Create the view files.
-     */
-    public function createViewFiles(): void
-    {
-        (new Filesystem())->ensureDirectoryExists(resource_path('views'));
-        (new Filesystem())->copyDirectory(__DIR__ . '/../../resources/views', resource_path('views'));
-
-        if (!$this->darkMode) {
-            $this->removeDarkClasses((new Finder())
-                ->in(resource_path('views'))
-                ->name('*.blade.php')
-                ->notName('welcome.blade.php')
-            );
-        }
-    }
-
-    /**
      * Create the event files.
      */
     public function createEventFiles(): void
     {
         (new Filesystem())->ensureDirectoryExists(app_path('Events'));
         (new Filesystem())->copyDirectory(__DIR__ . '/../../Events/', app_path('Events/'));
-    }
-
-    /**
-     * Removes Laravel Breeze's default routes and replaces them with Larascord's routes.
-     */
-    public function replaceBreezeRoutes(): void
-    {
-        (new Filesystem())->ensureDirectoryExists(resource_path('routes'));
-        (new Filesystem())->copy(__DIR__ . '/../../routes/web.php', base_path('routes/web.php'));
-        (new Filesystem())->delete(base_path('routes/auth.php'));
-    }
-
-    /**
-     * Remove Tailwind dark classes from the given files.
-     */
-    protected function removeDarkClasses(Finder $finder): void
-    {
-        foreach ($finder as $file) {
-            file_put_contents($file->getPathname(), preg_replace('/\sdark:[^\s"\']+/', '', $file->getContents()));
-        }
     }
 }
