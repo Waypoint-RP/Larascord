@@ -1,20 +1,6 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-
-/*
-|--------------------------------------------------------------------------
-| Web Routes
-|--------------------------------------------------------------------------
-|
-| Here is where you can register web routes for your application. These
-| routes are loaded by the RouteServiceProvider within a group which
-| contains the "web" middleware group. Now create something great!
-|
-*/
-
-use App\Http\Controllers\Auth\AuthenticatedSessionController;
-use App\Http\Controllers\Auth\ConfirmablePasswordController;
 use Jakyeru\Larascord\Http\Controllers\DiscordController;
 
 Route::redirect('/login', 'https://discord.com/oauth2/authorize?client_id=' . config('larascord.client_id')
@@ -24,11 +10,7 @@ Route::redirect('/login', 'https://discord.com/oauth2/authorize?client_id=' . co
     ->middleware(['web', 'guest'])
     ->name('login');
 
-Route::get('/confirm-password', [ConfirmablePasswordController::class, 'show'])
-    ->middleware(['web', 'auth'])
-    ->name('password.confirm');
-
-Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])
+Route::post('logout', App\Http\Actions\Logout::class)
     ->middleware(['web', 'auth'])
     ->name('logout');
 
