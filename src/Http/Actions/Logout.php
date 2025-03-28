@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Actions;
+namespace Jakyeru\Larascord\Http\Actions;
 
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;

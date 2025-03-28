@@ -10,7 +10,7 @@ Route::redirect('/login', 'https://discord.com/oauth2/authorize?client_id=' . co
     ->middleware(['web', 'guest'])
     ->name('login');
 
-Route::post('logout', App\Http\Actions\Logout::class)
+Route::post('logout', Jakyeru\Larascord\Http\Actions\Logout::class)
     ->middleware(['web', 'auth'])
     ->name('logout');
 
